@@ -63,13 +63,13 @@ public class Zip extends CordovaPlugin {
 
             CordovaResourceApi resourceApi = webView.getResourceApi();
 
-            File tempFile = resourceApi.mapUriToFile(zipUri);
-            if (tempFile == null || !tempFile.exists()) {
-                String errorMessage = "Zip file does not exist";
-                callbackContext.error(errorMessage);
-                Log.e(LOG_TAG, errorMessage);
-                return;
-            }
+            // File tempFile = resourceApi.mapUriToFile(zipUri);
+            // if (tempFile == null || !tempFile.exists()) {
+            //     String errorMessage = "Zip file does not exist";
+            //     callbackContext.error(errorMessage);
+            //     Log.e(LOG_TAG, errorMessage);
+            //     return;
+            // }
 
             File outputDir = resourceApi.mapUriToFile(outputUri);
             outputDirectory = outputDir.getAbsolutePath();
@@ -115,6 +115,7 @@ public class Zip extends CordovaPlugin {
             ZipEntry ze;
             byte[] buffer = new byte[32 * 1024];
             boolean anyEntries = false;
+            int lengthEntity = 0;
 
             while ((ze = zis.getNextEntry()) != null)
             {
@@ -127,17 +128,23 @@ public class Zip extends CordovaPlugin {
                 } else {
                     File file = new File(outputDirectory + compressedName);
                     file.getParentFile().mkdirs();
+                    lengthEntity = 0;
                     if(file.exists() || file.createNewFile()){
                         Log.w("Zip", "extracting: " + file.getPath());
                         FileOutputStream fout = new FileOutputStream(file);
                         int count;
                         while ((count = zis.read(buffer)) != -1)
                         {
+                            lengthEntity += count;
                             fout.write(buffer, 0, count);
                         }
                         fout.close();
                     }
 
+                }
+                
+                if (ze.getCompressedSize() == -1) {
+                    ze.setCompressedSize(lengthEntity);
                 }
                 progress.addLoaded(ze.getCompressedSize());
                 updateProgress(callbackContext, progress);
