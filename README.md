@@ -4,7 +4,12 @@ A Cordova plugin to unzip files in Android and iOS.
 
 ## Installation
 
-    cordova plugin add cordova-plugin-zip
+    cordova plugin add https://github.com/AGENTxXx/cordova-plugin-zip.git
+    
+## For ionic
+
+    ionic cordova plugin add https://github.com/AGENTxXx/cordova-plugin-zip.git
+    npm install --save @ionic-native/zip
 
 ## Usage
 
@@ -27,7 +32,48 @@ has been extracted. E.g.:
 The values `loaded` and `total` are the number of compressed bytes processed and total. Total is the
 file size of the zip file.
 
+Example for Ionic 3:
+home.html:
+    <ion-content class="menuBg" scrollbar-x="false" scrollbar-y="false">
+        <div id="progressbarPosition" class="progressbarPosition" [style.width]="progressbarPercent"></div>
+    </ion-content>
+    
+home.ts:
+    import { Component, ChangeDetectorRef } from '@angular/core';
+    import { NavController, Platform} from 'ionic-angular';
+    import { Zip } from '@ionic-native/zip';
+    
+    public progressbarPercent:string = '0%';
+    public progress = 0;
+
+    constructor(public pl: Platform, private file: File, private zip: Zip, private cdr: ChangeDetectorRef) {
+        platform.ready().then((readySource) => {
+        this.zip.unzip(this.file.applicationDirectory +'www/assets/map.zip', this.file.externalDataDirectory, 
+                (progress) => {
+                    let pr = Math.round((progress.loaded / progress.total) * 100);
+                    if (this.progress != pr) {
+                        this.progress = pr;
+                        this.progressbarPercent = this.progress + "%";
+                        this.cdr.detectChanges(); //is update view manual, another is not working auto-update
+                    }
+                }
+            )
+            .then((result) => {
+                if(result === 0) {
+                    //It's OK
+                }
+                else {
+                    //It's Error
+                };
+            });
+        }
+    }
+
 ## Release Notes
+
+### 3.1.1 (Oct 21, 2018)
+* Fixed an error when the file could not be found.
+* Corrected the error when the file size was calculated incorrectly.
 
 ### 3.1.0 (Feb 23, 2016)
 * Updated SSZipArchive (ios lib) to 1.1
