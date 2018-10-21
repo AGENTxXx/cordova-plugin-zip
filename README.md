@@ -33,14 +33,27 @@ The values `loaded` and `total` are the number of compressed bytes processed and
 file size of the zip file.
 
 Example for Ionic 3:
+
+build.gradle:
+
+    android {
+        ...
+        aaptOptions {
+            noCompress "zip" //if you want correct total file size in progress callback
+        }
+        ...
+    }
+
 home.html:
+
     <ion-content class="menuBg" scrollbar-x="false" scrollbar-y="false">
         <div id="progressbarPosition" class="progressbarPosition" [style.width]="progressbarPercent"></div>
     </ion-content>
     
 home.ts:
-    import { Component, ChangeDetectorRef } from '@angular/core';
+    
     import { NavController, Platform} from 'ionic-angular';
+    import { Component, ChangeDetectorRef } from '@angular/core';
     import { Zip } from '@ionic-native/zip';
     
     public progressbarPercent:string = '0%';
